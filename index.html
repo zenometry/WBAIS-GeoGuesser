@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusQuest</title>
+
+  <!-- Pannellum: the 360° panorama viewer -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+
+  <!-- Our own stylesheet -->
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="game">
+    <h2>CampusQuest</h2>
+
+    <div id="panorama"></div>
+
+    <h3>Click on the map where you think this location is</h3>
+
+    <div id="mapBox">
+      <img id="map" src="images/map.jpeg" alt="Campus map">
+
+      <!-- Where the player clicked -->
+      <div id="pin"></div>
+
+      <!-- The correct location -->
+      <div id="correctPin">🚩</div>
+
+      <!-- Line connecting guess to answer -->
+      <svg id="lineLayer">
+        <line id="distanceLine"
+              x1="0" y1="0" x2="0" y2="0"
+              stroke="black"
+              stroke-width="3"
+              stroke-dasharray="8,6"/>
+      </svg>
+    </div>
+
+    <p id="result"></p>
+
+    <div class="buttons">
+      <button id="submitBtn">Submit Guess</button>
+      <button id="nextBtn">Next Location</button>
+    </div>
+  </div>
+
+  <!-- Load data first, then the game logic that uses it -->
+  <script src="js/locations.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
