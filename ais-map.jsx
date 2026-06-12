@@ -114,65 +114,61 @@ function shade(hex){
   return `rgb(${r},${g},${b})`;
 }
 
+/* Preview flag shown before the guess is submitted */
+function FlagPin({ x, y }){
+  return (
+    <g transform={`translate(${x} ${y})`} className="pin-marker pin-drop">
+      <ellipse cx="0" cy="2" rx="8" ry="3" fill="rgba(0,0,0,.28)" />
+      {/* pole */}
+      <line x1="0" y1="0" x2="0" y2="-40" stroke="#C8102E" strokeWidth="2.8" strokeLinecap="round" />
+      {/* flag */}
+      <path d="M0 -40 L20 -32 L0 -24 Z" fill="#C8102E" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round" />
+      {/* base */}
+      <circle cx="0" cy="0" r="4.5" fill="#C8102E" stroke="#fff" strokeWidth="2" />
+    </g>
+  );
+}
+
 function CampusMap({ mode='guess', guess, actual, onPlace, showCodes=false, pinScale=1 }){
-  const svgRef = useRef(null);
+  const containerRef = useRef(null);
 
   function handleClick(e){
     if(mode !== 'guess' || !onPlace) return;
-    const rect = svgRef.current.getBoundingClientRect();
+    const rect = containerRef.current.getBoundingClientRect();
     const px = (e.clientX - rect.left) / rect.width * MAP_W;
     const py = (e.clientY - rect.top) / rect.height * MAP_H;
     onPlace({ x: Math.max(4, Math.min(MAP_W-4, px)), y: Math.max(4, Math.min(MAP_H-4, py)) });
   }
 
-  const buildings = BUILDINGS.map(b=>{
-    const loc = LOCATIONS.find(l=>l.id===b.id);
-    return { ...b, code: loc ? loc.code : (b.code||'') };
-  });
-
   return (
-    <svg ref={svgRef} viewBox={`0 0 ${MAP_W} ${MAP_H}`} onClick={handleClick}
-         className={`map-canvas ${mode==='reveal'?'reveal':''}`} preserveAspectRatio="none">
-      {/* ground */}
-      <rect x="0" y="0" width={MAP_W} height={MAP_H} fill="#EDE7D7" />
-      <rect x="14" y="14" width={MAP_W-28} height={MAP_H-28} rx="22" fill="#F1ECDD" stroke="#DCD3BC" strokeWidth="3" />
-      {/* grass patches */}
-      <rect x="30" y="200" width="150" height="320" rx="16" fill="#DCE9C8" opacity=".8" />
-      <rect x="600" y="360" width="170" height="200" rx="16" fill="#DCE9C8" opacity=".8" />
-      <rect x="880" y="360" width="100" height="170" rx="16" fill="#DCE9C8" opacity=".8" />
-
-      {/* paths */}
-      {PATHS.map((d,i)=>(
-        <path key={i} d={d} fill="none" stroke="#E2DAC4" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
-      ))}
-      {PATHS.map((d,i)=>(
-        <path key={'c'+i} d={d} fill="none" stroke="#F4EFE1" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="2 14" opacity=".8" />
-      ))}
-
-      {/* buildings */}
-      {buildings.map(b=> <Building key={b.id} b={b} showCode={showCodes} />)}
-
-      {/* trees */}
-      {TREES.map((t,i)=>(
-        <g key={i}>
-          <ellipse cx={t[0]} cy={t[1]+5} rx="9" ry="3" fill="rgba(0,0,0,.08)" />
-          <circle cx={t[0]} cy={t[1]} r="9" fill="#7FB069" stroke="#5E9248" strokeWidth="1.5" />
-        </g>
-      ))}
-
-      {/* reveal connectors + pins */}
-      {mode==='reveal' && guess && actual && (
-        <line x1={guess.x} y1={guess.y} x2={actual.x} y2={actual.y}
-              className="dash-line" stroke="#0A2A5E" strokeWidth="3" strokeLinecap="round" opacity=".75" />
-      )}
-      {mode==='reveal' && actual && (
-        <MapPin x={actual.x} y={actual.y} color="#1F8A4C" scale={pinScale} drop />
-      )}
-      {guess && (
-        <MapPin x={guess.x} y={guess.y} color="#C8102E" scale={pinScale} drop={mode==='guess'} />
-      )}
-    </svg>
+    <div ref={containerRef}
+         className={`map-canvas ${mode==='reveal'?'reveal':''}`}
+         style={{ position:'relative' }}
+         onClick={handleClick}>
+      {/* real campus map photo */}
+      <img src="map.jpeg" alt="WBAIS campus map"
+           draggable="false"
+           style={{ position:'absolute', inset:0, width:'100%', height:'100%',
+                    objectFit:'fill', display:'block', userSelect:'none' }} />
+      {/* SVG overlay for pins and lines only */}
+      <svg style={{ position:'absolute', inset:0, width:'100%', height:'100%', overflow:'visible' }}
+           viewBox={`0 0 ${MAP_W} ${MAP_H}`} preserveAspectRatio="none">
+        {mode==='reveal' && guess && actual && (
+          <line x1={guess.x} y1={guess.y} x2={actual.x} y2={actual.y}
+                className="dash-line" stroke="#0A2A5E" strokeWidth="3" strokeLinecap="round" opacity=".85" />
+        )}
+        {mode==='reveal' && actual && (
+          <MapPin x={actual.x} y={actual.y} color="#1F8A4C" scale={pinScale} drop />
+        )}
+        {mode==='reveal' && guess && (
+          <MapPin x={guess.x} y={guess.y} color="#C8102E" scale={pinScale} />
+        )}
+        {mode==='guess' && guess && (
+          <FlagPin x={guess.x} y={guess.y} />
+        )}
+      </svg>
+    </div>
   );
 }
 
-Object.assign(window, { CampusMap, MapPin });
+Object.assign(window, { CampusMap, MapPin, FlagPin });
