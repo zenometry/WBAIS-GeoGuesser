@@ -1,75 +1,249 @@
-/* =========================================================
-   CAMPUSQUEST STYLES
-   Edit this file to change how the game looks.
-   ========================================================= */
+/* =============================================
+   CampusQuest — style.css
+   ============================================= */
 
-body {
-  font-family: Arial, sans-serif;
+/* Loads two fonts from Google:
+   - "Boogaloo" for the title: chunky, fun, game-y
+   - "Inter" for everything else: clean and readable */
+@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Inter:wght@400;500;600&display=swap');
+
+
+/* ---- Reset ----
+   Browsers add their own margins/padding by default.
+   This clears all of that so we start from scratch. */
+* {
+  box-sizing: border-box;
   margin: 0;
-  padding: 20px;
+  padding: 0;
 }
 
+
+/* ---- Page background ----
+   Dark navy, centered layout. */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #0d1b2a;   /* Deep navy */
+  color: #e8eaf0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;     /* Centers .game left-to-right */
+  align-items: flex-start;
+  padding: 36px 16px;
+}
+
+
+/* ---- Game wrapper ----
+   Everything lives inside this div.
+   flex-direction: column stacks children top-to-bottom.
+   align-items: center horizontally centers each child. */
 .game {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+
+/* ---- Title: "CampusQuest" (the <h2>) ----
+   Big, bold, jubilant. Uses the Boogaloo display font.
+   The drop shadow gives it depth — like a game logo. */
+.game h2 {
+  font-family: 'Boogaloo', cursive;
+  font-size: 5rem;             /* Very large — this is the hero of the page */
+  font-weight: 400;            /* Boogaloo is already heavy — 400 is correct here */
+  text-align: center;
+  letter-spacing: 2px;
+  line-height: 1;
+
+  /* Warm yellow-to-orange gradient text */
+  background: linear-gradient(135deg, #ffe066 0%, #ff9f1c 60%, #ff6b6b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  /* Glowing shadow behind the text for extra pop */
+  filter: drop-shadow(0 2px 18px rgba(255, 180, 30, 0.35));
+}
+
+
+/* ---- Instruction text: "Click on the map…" (the <h3>) ----
+   Deliberately different from the title:
+   - Different font (Inter not Boogaloo)
+   - Lighter weight, smaller size
+   - Muted colour — it's guidance, not a headline
+   - Spaced-out uppercase letters = feels like a game UI prompt */
+.game h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: #7b93b0;              /* Muted blue-grey — clearly secondary */
   text-align: center;
 }
 
+
+/* ---- 360° panorama viewer ----
+   Pannellum fills this div. Needs a fixed height to render.
+   Width 100% means it stretches across the full game wrapper. */
 #panorama {
   width: 100%;
-  height: 420px;
-  border-radius: 12px;
+  height: 460px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
 }
 
+
+/* ---- Map container ----
+   position: relative is CRITICAL — the pins inside use
+   position: absolute, which means "place me relative to my
+   nearest positioned ancestor." That ancestor is this div.
+   Remove position:relative and the pins fly to the wrong place. */
 #mapBox {
   position: relative;
-  display: inline-block;
+  display: inline-block;       /* Shrinks to wrap the map image exactly */
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  cursor: crosshair;           /* Cursor becomes + to hint: click here */
 }
 
+
+/* ---- Map image ----
+   max-width: 100% stops it overflowing on small screens.
+   The min-width makes it large on desktop — this is the
+   "bottom image should be larger" change. */
 #map {
-  width: 700px;
-  max-width: 100%;
-  border: 2px solid black;
-  cursor: crosshair;
+  display: block;              /* Removes the small gap below inline images */
+  width: 100%;
+  min-width: 600px;            /* Forces a large comfortable size on desktop */
+  max-width: 860px;
+  height: auto;                /* Keeps aspect ratio correct */
 }
 
-/* The player's guess pin */
+
+/* ---- Player guess pin (red dot) ----
+   Sits on top of the map. Starts hidden (display:none).
+   game.js moves it to wherever you clicked and shows it. */
 #pin {
-  display: none;
   position: absolute;
-  width: 9px;
-  height: 9px;
-  background: red;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  border: 1px solid white;
+  width: 16px;
+  height: 16px;
+  background: #ff6b6b;
+  border: 2.5px solid white;
+  border-radius: 50%;          /* Circle */
+  display: none;
+  transform: translate(-50%, -50%);  /* Centers dot ON the click point */
+  pointer-events: none;        /* Clicks pass through to the map beneath */
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
-/* The correct-answer flag */
+
+/* ---- Correct answer flag (🚩) ----
+   Same idea — hidden until after submit.
+   transform: translate(-50%, -100%) places the BASE of the flag
+   exactly on the coordinate, not the top-left corner of the emoji. */
 #correctPin {
-  display: none;
   position: absolute;
-  font-size: 28px;
+  font-size: 22px;
+  display: none;
   transform: translate(-50%, -100%);
+  pointer-events: none;
+  z-index: 2;
 }
 
-/* The dashed line layer */
+
+/* ---- SVG line layer ----
+   Covers the map exactly. game.js sets x1,y1,x2,y2 after a guess
+   to draw the dashed line between your dot and the flag. */
 #lineLayer {
-  display: none;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
+  pointer-events: none;        /* Clicks pass through to the map */
+  z-index: 1;
 }
 
+
+/* ---- Score / result text ----
+   game.js writes "You scored X points!" in here.
+   min-height stops the layout jumping when text appears. */
 #result {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffe066;              /* Warm yellow — matches the title's palette */
+  text-align: center;
+  min-height: 1.6rem;
+  letter-spacing: 0.3px;
 }
 
+
+/* ---- Button row ----
+   flex + gap puts the two buttons side by side with space between them. */
+.buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+
+/* ---- Both buttons share these base styles ---- */
 .buttons button {
-  padding: 10px 18px;
-  font-size: 16px;
-  margin: 4px;
+  padding: 12px 30px;
+  font-family: 'Inter', sans-serif;   /* Buttons don't inherit font — must be set */
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
   cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+/* Hover: lift up slightly */
+.buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* Click: press back down */
+.buttons button:active {
+  transform: translateY(0);
+}
+
+
+/* ---- Submit Guess button ----
+   Warm gradient matching the title colours. */
+#submitBtn {
+  background: linear-gradient(135deg, #ffe066, #ff9f1c);
+  color: #1a1200;              /* Dark text on the bright button — readable */
+}
+
+/* Greyed out before the player has clicked the map */
+#submitBtn:disabled {
+  background: #1e2d3d;
+  color: #3a5068;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+
+/* ---- Next Location button ----
+   Subdued — secondary action, should be less prominent than Submit. */
+#nextBtn {
+  background: #162032;
+  color: #7b93b0;
+  border: 1px solid #1e3048;
+}
+
+#nextBtn:hover {
+  background: #1e3048;
+  color: #c8d8e8;
 }
