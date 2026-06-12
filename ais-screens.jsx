@@ -25,7 +25,7 @@ function StartScreen({ onStart, settings, setSettings, onHelp }) {
           maskImage: 'radial-gradient(120% 90% at 50% 30%, #000 30%, transparent 78%)',
           WebkitMaskImage: 'radial-gradient(120% 90% at 50% 30%, #000 30%, transparent 78%)',
         }}>
-          <div style={{ width: '100%', aspectRatio: '1000/700' }}>
+          <div style={{ width: '100%', aspectRatio: '1140/855' }}>
             <CampusMap mode="reveal" />
           </div>
         </div>
@@ -104,21 +104,48 @@ function StartScreen({ onStart, settings, setSettings, onHelp }) {
 
 /* ---------------- PANORAMA PLACEHOLDER ---------------- */
 function Pano({ loc, round, total }) {
+  const panoElRef = useRefS(null);
+  const viewerRef = useRefS(null);
+
+  useEffect(() => {
+    if (!loc.img) return;
+    /* destroy any existing viewer first */
+    if (viewerRef.current) { viewerRef.current.destroy(); viewerRef.current = null; }
+    if (!panoElRef.current) return;
+    viewerRef.current = pannellum.viewer(panoElRef.current, {
+      type: 'equirectangular',
+      panorama: loc.img,
+      autoLoad: true,
+      showControls: true,
+      compass: false,
+      mouseZoom: true,
+      hfov: 100,
+    });
+    return () => {
+      if (viewerRef.current) { viewerRef.current.destroy(); viewerRef.current = null; }
+    };
+  }, [loc.img]);
+
+  if (loc.img) {
+    return (
+      <div className="pano">
+        <div ref={panoElRef} style={{ width:'100%', height:'100%' }} />
+      </div>
+    );
+  }
+
   return (
     <div className="pano">
-      {loc.img
-        ? <img className="pano-img" src={loc.img} alt={loc.name} />
-        : <div className="pano-placeholder"
-               style={{ background: `linear-gradient(135deg, ${loc.c1} 0%, ${loc.c2} 100%)` }}>
-            <div className="pano-stripes"></div>
-            <div className="pano-watermark"><span className="mark">?</span></div>
-            <div className="pano-vignette"></div>
-            <div className="pano-cap">
-              <div className="q">Where on campus is this?</div>
-              <div className="hint">Round <b>{round}</b> of {total} &nbsp;·&nbsp; photo coming soon</div>
-            </div>
-          </div>
-      }
+      <div className="pano-placeholder"
+           style={{ background: `linear-gradient(135deg, ${loc.c1} 0%, ${loc.c2} 100%)` }}>
+        <div className="pano-stripes"></div>
+        <div className="pano-watermark"><span className="mark">?</span></div>
+        <div className="pano-vignette"></div>
+        <div className="pano-cap">
+          <div className="q">Where on campus is this?</div>
+          <div className="hint">Round <b>{round}</b> of {total} &nbsp;·&nbsp; photo coming soon</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -188,7 +215,8 @@ function GameScreen({ round, roundIndex, total, results, settings, onGuess, onQu
 
       <div className="minimap-wrap">
         <div className={`minimap ${expanded ? 'expanded' : ''}`}
-             onMouseEnter={() => setExpanded(true)}>
+             onMouseEnter={() => setExpanded(true)}
+             onMouseLeave={() => setExpanded(false)}>
           <div className="minimap-head">
             <div className="title">
               <Icon d={ICONS.pin} size={15} /> WBAIS Campus Map
