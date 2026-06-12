@@ -5,26 +5,25 @@ somewhere on campus, and you click on the map to guess where it is.
 
 ## How the project is organized
 
+All files live together in one folder (flat layout):
+
 ```
 campusquest/
 ├── index.html          The page structure (rarely needs editing)
-├── css/
-│   └── style.css       How the game looks
-├── js/
-│   ├── locations.js    ← THE LOCATIONS. Edit this to add new spots.
-│   └── game.js         The game logic (only edit to change rules)
-└── images/
-    ├── map.jpeg        The campus map
-    └── ...             One panorama photo per location
+├── style.css           How the game looks
+├── locations.js        ← THE LOCATIONS. Edit this to add new spots.
+├── game.js             The game logic (only edit to change rules)
+├── map.jpeg            The campus map
+└── ...                 One panorama photo per location
 ```
 
 ## I just want to add a new location
 
-You only need to edit **`js/locations.js`**. Open it and follow the
+You only need to edit **`locations.js`**. Open it and follow the
 instructions at the top of the file. In short:
 
-1. Add your 360° panorama photo to the `images/` folder.
-2. Find the correct pixel coordinates on `images/map.jpeg`.
+1. Add your 360° panorama photo to this folder (next to index.html).
+2. Find the correct pixel coordinates on `map.jpeg`.
 3. Copy an existing block in `locations.js`, paste it, and change the
    four values (`pano`, `answerX`, `answerY`, `name`).
 
