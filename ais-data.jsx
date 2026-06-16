@@ -12,7 +12,7 @@ const MAP_W = 1000, MAP_H = 700;
 // Guessable spots. x/y = true location on the campus map.
 const LOCATIONS = [
   { id:'field',  name:'Athletic Field',          code:'FIELD',  x:215, y:150, c1:'#5AA259', c2:'#3C7E45',
-    fact:"Home turf for the WBAIS Eagles — soccer, track and field days all happen here. It's the biggest open space on campus." },
+    fact:"Home turf for the WBAIS Falcons — soccer, track and field days all happen here. It's the biggest open space on campus." },
   { id:'pool',   name:'Olympic Pool',             code:'POOL',   x:660, y:128, c1:'#3FA0CE', c2:'#1F6E9C',
     img:'PXL_20260602_095025885.PHOTOSPHERE.jpg',
     fact:"WBAIS has an Olympic-sized swimming pool used for PE and the swim team. Not many schools in Israel can say that!" },
@@ -23,12 +23,12 @@ const LOCATIONS = [
     fact:"A 400-seat auditorium hosts plays, concerts and assemblies. The drama and music programs basically live here." },
   { id:'gym',    name:'Gymnasium',                code:'GYM',    x:822, y:215, c1:'#D08A4A', c2:'#A6622C',
     img:'PXL_20260602_095317048.PHOTOSPHERE.jpg',
-    fact:"The double gymnasium fits full basketball and volleyball courts, plus seating for Eagles home games and pep rallies." },
+    fact:"The double gymnasium fits full basketball and volleyball courts, plus seating for Falcons home games and pep rallies." },
   { id:'bball',  name:'Basketball Courts',        code:'BBALL',  x:565, y:268, c1:'#E0913E', c2:'#B86C24',
     img:'basketball-court.jpeg',
     fact:"Outdoor courts where pick-up games happen at recess and lunch. A favourite hangout when the weather's nice — which is often." },
   { id:'early',  name:'Early Years Building',     code:'EY',     x:182, y:548, c1:'#E0913E', c2:'#C26A2E',
-    fact:"Preschool & Early Years (PK3–KG). It moved to the Even Yehuda campus in 2007 so the littlest Eagles are part of campus life." },
+    fact:"Preschool & Early Years (PK3–KG). It moved to the Even Yehuda campus in 2007 so the littlest Falcons are part of campus life." },
   { id:'elem',   name:'Elementary School',        code:'ES',     x:188, y:372, c1:'#5C82C4', c2:'#39579C',
     img:'PXL_20260602_093739045.PHOTOSPHERE.jpg',
     fact:"Elementary classrooms for the younger grades, with their own playground and entrance on the west side of campus." },
@@ -42,8 +42,8 @@ const LOCATIONS = [
     fact:"The High School (grades 9–12) leads to a U.S. high school diploma — WBAIS is the only U.S.-accredited school in Israel." },
   { id:'cafe',   name:'Cafeteria',                code:'CAF',    x:560, y:540, c1:'#D9A23E', c2:'#B07A1E',
     fact:"Lunch HQ and the unofficial social centre of campus. Students from 40+ nationalities share tables here every day." },
-  { id:'plaza',  name:'Eagle Plaza',              code:'PLAZA',  x:492, y:472, c1:'#C8102E', c2:'#8E0B20',
-    fact:"The central courtyard — look for the WBAIS Eagle. Everyone passes through here between classes, so learn it first!" },
+  { id:'plaza',  name:'Falcon Plaza',             code:'PLAZA',  x:492, y:472, c1:'#C8102E', c2:'#8E0B20',
+    fact:"The central courtyard — look for the WBAIS Falcon. Everyone passes through here between classes, so learn it first!" },
   { id:'gate',   name:'Main Entrance',            code:'GATE',   x:500, y:646, c1:'#7C8AA6', c2:'#566480',
     fact:"The main gate and security checkpoint. Every WBAIS day starts and ends here, just off the road in Even Yehuda." },
 ];
@@ -98,11 +98,33 @@ function scoreFor(units){
   return Math.max(0, Math.round(s));
 }
 
+// ---- panoramas ----
+// Every available equirectangular photosphere on campus. Each round is shown
+// one of these, chosen at random, so the player always sees a real 360° photo
+// instead of the "photo coming soon" placeholder.
+const PANO_POOL = [
+  'PXL_20260602_093739045.PHOTOSPHERE.jpg',
+  'PXL_20260602_094536204.PHOTOSPHERE.jpg',
+  'PXL_20260602_095025885.PHOTOSPHERE.jpg',
+  'PXL_20260602_095317048.PHOTOSPHERE.jpg',
+  'basketball-court.jpeg',
+  'p1f659O.jpeg',
+  'Qw5UR91.jpeg',
+];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
 // ---- rounds ----
 function pickRounds(n){
-  const pool = [...LOCATIONS];
-  for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
-  return pool.slice(0, n);
+  const chosen = shuffle(LOCATIONS).slice(0, n);
+  // Hand out a freshly shuffled photosphere to each round (distinct while the
+  // pool lasts, then cycling) so the displayed image is randomised.
+  const panos = shuffle(PANO_POOL);
+  return chosen.map((loc, i) => ({ ...loc, img: panos[i % panos.length] }));
 }
 
 // ---- leaderboard (localStorage) ----
@@ -120,7 +142,7 @@ function loadLB(){
 }
 function saveScore(name, score){
   const lb = loadLB();
-  const entry = { name: name || 'New Eagle', score, you:true, ts:Date.now() };
+  const entry = { name: name || 'New Falcon', score, you:true, ts:Date.now() };
   lb.forEach(e=>delete e.you);
   lb.push(entry);
   lb.sort((a,b)=>b.score-a.score);
@@ -133,7 +155,7 @@ function saveScore(name, score){
 function rankTitle(total, rounds){
   const avg = total / rounds;
   if(avg >= 4500) return { icon:'🦅', title:'Campus Legend',  sub:"You know WBAIS like the back of your hand. Are you sure you're new?" };
-  if(avg >= 3500) return { icon:'⭐', title:'Eagle Scout',     sub:"Seriously good. You'll never be late to class." };
+  if(avg >= 3500) return { icon:'⭐', title:'Falcon Scout',    sub:"Seriously good. You'll never be late to class." };
   if(avg >= 2400) return { icon:'🧭', title:'Getting Around',  sub:"Solid sense of direction — a few more laps and you've got it." };
   if(avg >= 1300) return { icon:'🗺️', title:'New Explorer',    sub:"You're finding your way. Play again to learn the tricky spots." };
   return { icon:'🌱', title:'Fresh Arrival', sub:"Welcome to WBAIS! Everyone starts here — give it another go." };
