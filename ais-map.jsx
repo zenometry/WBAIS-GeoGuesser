@@ -4,16 +4,22 @@
 const { useRef } = React;
 
 function MapPin({ x, y, color='#C8102E', scale=1, drop=false, label }){
+  // Outer <g> holds the positioning transform; the inner <g> carries the
+  // drop animation. They MUST be separate: the CSS keyframes animate the
+  // `transform` property, which would otherwise override this positioning
+  // transform and snap the pin to the SVG origin.
   return (
-    <g transform={`translate(${x} ${y}) scale(${scale})`} className={`pin-marker ${drop?'pin-drop':''}`}>
-      <ellipse cx="0" cy="2" rx="9" ry="3.4" fill="rgba(0,0,0,.25)" />
-      <path d="M0 0 C-13 -20 -13 -34 0 -42 C13 -34 13 -20 0 0 Z"
-            fill={color} stroke="#fff" strokeWidth="2.4" />
-      <circle cx="0" cy="-29" r="5.4" fill="#fff" />
-      {label && (
-        <text x="0" y="-25.6" textAnchor="middle" fontSize="7.4" fontWeight="700"
-              fontFamily="Fredoka, sans-serif" fill={color}>{label}</text>
-      )}
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <g className={`pin-marker ${drop?'pin-drop':''}`}>
+        <ellipse cx="0" cy="2" rx="9" ry="3.4" fill="rgba(0,0,0,.25)" />
+        <path d="M0 0 C-13 -20 -13 -34 0 -42 C13 -34 13 -20 0 0 Z"
+              fill={color} stroke="#fff" strokeWidth="2.4" />
+        <circle cx="0" cy="-29" r="5.4" fill="#fff" />
+        {label && (
+          <text x="0" y="-25.6" textAnchor="middle" fontSize="7.4" fontWeight="700"
+                fontFamily="Fredoka, sans-serif" fill={color}>{label}</text>
+        )}
+      </g>
     </g>
   );
 }
@@ -116,15 +122,20 @@ function shade(hex){
 
 /* Preview flag shown before the guess is submitted */
 function FlagPin({ x, y }){
+  // Positioning lives on the outer <g>; the drop animation on the inner <g>.
+  // (The CSS `pin-drop` keyframes animate `transform`, so keeping them on the
+  // same node as the translate would override it and drop the flag at 0,0.)
   return (
-    <g transform={`translate(${x} ${y})`} className="pin-marker pin-drop">
-      <ellipse cx="0" cy="2" rx="8" ry="3" fill="rgba(0,0,0,.28)" />
-      {/* pole */}
-      <line x1="0" y1="0" x2="0" y2="-40" stroke="#C8102E" strokeWidth="2.8" strokeLinecap="round" />
-      {/* flag */}
-      <path d="M0 -40 L20 -32 L0 -24 Z" fill="#C8102E" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round" />
-      {/* base */}
-      <circle cx="0" cy="0" r="4.5" fill="#C8102E" stroke="#fff" strokeWidth="2" />
+    <g transform={`translate(${x} ${y})`}>
+      <g className="pin-marker pin-drop">
+        <ellipse cx="0" cy="2" rx="8" ry="3" fill="rgba(0,0,0,.28)" />
+        {/* pole */}
+        <line x1="0" y1="0" x2="0" y2="-40" stroke="#C8102E" strokeWidth="2.8" strokeLinecap="round" />
+        {/* flag */}
+        <path d="M0 -40 L20 -32 L0 -24 Z" fill="#C8102E" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round" />
+        {/* base */}
+        <circle cx="0" cy="0" r="4.5" fill="#C8102E" stroke="#fff" strokeWidth="2" />
+      </g>
     </g>
   );
 }

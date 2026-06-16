@@ -42,14 +42,14 @@ function StartScreen({ onStart, settings, setSettings, onHelp }) {
       </div>
 
       <div className="start-main">
-        <span className="eyebrow">NEW EAGLES ORIENTATION</span>
+        <span className="eyebrow">NEW FALCONS ORIENTATION</span>
         <h1 className="hero-title">
           <span className="t-ais">FIND YOUR</span><br /><span className="t-geo">WAY @ WBAIS</span>
         </h1>
         <p className="hero-sub">
           New to the nest? See a spot somewhere on the WBAIS campus, then <b>drop a pin</b> where
           you think it is. The closer you guess, the more points you score — learn your way around
-          before day one. <b>Go Eagles!</b>
+          before day one. <b>Go Falcons!</b>
         </p>
 
         <div className="cta-row">
@@ -342,7 +342,7 @@ function FinalScreen({ results, onPlayAgain, onMenu }) {
         </div>
 
         <div className="panel-card">
-          <h3>🏆 Eagle Leaderboard</h3>
+          <h3>🏆 Falcon Leaderboard</h3>
           {!saved &&
             <div className="name-entry">
               <input value={name} maxLength={14} placeholder="Enter your name…"
@@ -370,7 +370,7 @@ function HelpModal({ onClose }) {
     <div className="modal-back fade-in" onClick={onClose}>
       <div className="modal pop-in" onClick={e => e.stopPropagation()}>
         <h2>How to play 🦅</h2>
-        <p>A quick way for new Eagles to learn the WBAIS campus before the first bell.</p>
+        <p>A quick way for new Falcons to learn the WBAIS campus before the first bell.</p>
         <div className="row"><div><div className="lab">1 · See the spot</div><div className="desc">A photo from somewhere on campus appears full-screen.</div></div></div>
         <div className="row"><div><div className="lab">2 · Drop your pin</div><div className="desc">Click the campus map (bottom-right) where you think it is.</div></div></div>
         <div className="row"><div><div className="lab">3 · Make your guess</div><div className="desc">Hit "Make Guess" — closer pins score up to 5,000 points.</div></div></div>
